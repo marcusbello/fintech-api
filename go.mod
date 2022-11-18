@@ -2,10 +2,13 @@ module fintech-api
 
 go 1.19
 
-require github.com/gin-gonic/gin v1.8.1
+require (
+	github.com/couchbase/gocb/v2 v2.6.0
+	github.com/gin-gonic/gin v1.8.1
+	github.com/golang-jwt/jwt/v4 v4.4.2
+)
 
 require (
-	github.com/couchbase/gocb/v2 v2.6.0 // indirect
 	github.com/couchbase/gocbcore/v10 v10.2.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect

@@ -2,6 +2,7 @@ package http
 
 import (
 	"fintech-api/pkg/domain"
+	"fintech-api/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -33,8 +34,10 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"Error": err})
 		return
 	}
-	c.Header("Authorization", "Bearer fintech_jwt_token_here")
-	return
+	user := strings.ToLower(req.UserName)
+	jwtToken, err := utils.GenerateToken(user)
+	c.Header("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
+	c.JSON(http.StatusOK, gin.H{"Data": "successfully logged in"})
 }
 
 func (h FintechHandler) RegisterHandler(c *gin.Context) {
@@ -54,7 +57,7 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 }
 
 func (h FintechHandler) GetUserHandler(c *gin.Context) {
-	user := c.GetHeader("Key")
-	c.JSON(http.StatusOK, gin.H{"Data": fmt.Sprintf("%s", user)})
-	return
+	user := c.GetHeader("Authorization")
+	username := strings.Split(user, " ")
+	c.JSON(http.StatusOK, gin.H{"Data": fmt.Sprintf("%s", username[1])})
 }

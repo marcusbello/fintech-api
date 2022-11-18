@@ -21,7 +21,7 @@ GET http://localhost:3030/me
 
 
 ###
-GET http://localhost:3000/players/Pepper
+GET http://localhost:3030/
 
 
 ###
