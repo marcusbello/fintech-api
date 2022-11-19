@@ -58,6 +58,11 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 
 func (h FintechHandler) GetUserHandler(c *gin.Context) {
 	user := c.GetHeader("Authorization")
-	username := strings.Split(user, " ")
-	c.JSON(http.StatusOK, gin.H{"Data": fmt.Sprintf("%s", username[1])})
+	token := strings.Split(user, " ")[1]
+	getUserName, err := utils.ValidateToken(token)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"Error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"Data": fmt.Sprintf("%s", getUserName)})
 }
