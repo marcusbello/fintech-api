@@ -9,6 +9,14 @@ type fintechUc struct {
 	fintechRepo domain.FintechRepository
 }
 
+func (u fintechUc) AddMoneyUc(c *gin.Context, to string, amount int) (domain.Account, error) {
+	return u.fintechRepo.AddMoneyRepository(c, to, amount)
+}
+
+func (u fintechUc) RemoveMoneyUc(c *gin.Context, from string, amount int) (domain.Account, error) {
+	return u.fintechRepo.RemoveMoneyRepository(c, from, amount)
+}
+
 func (u fintechUc) LoginUc(c *gin.Context, userName, password string) error {
 	return u.fintechRepo.LoginRepository(c, userName, password)
 }
@@ -17,8 +25,8 @@ func (u fintechUc) RegisterUserUc(c *gin.Context, userName, email, password stri
 	return u.fintechRepo.RegisterUserRepository(c, userName, email, password)
 }
 
-func (u fintechUc) GetUserNameUc(c *gin.Context, userName string) (domain.UserType, error) {
-	return u.fintechRepo.GetUserNameRepository(c, userName)
+func (u fintechUc) GetUserUc(c *gin.Context, userName string) (domain.UserType, error) {
+	return u.fintechRepo.GetUserRepository(c, userName)
 }
 
 func (u fintechUc) GetAccountUc(c *gin.Context, userName string) (domain.Account, error) {
