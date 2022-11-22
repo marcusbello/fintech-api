@@ -6,11 +6,12 @@ type UserType struct {
 	UserName string  `json:"user_name"`
 	Email    string  `json:"email"`
 	Password string  `json:"password,omitempty"`
+	Role     string  `json:"role"`
 	Account  Account `json:"account,omitempty"`
 }
 
 type Account struct {
-	UserId  string `json:"userId"`
+	UserId  string `json:"userId,omitempty"`
 	Balance int    `json:"balance"`
 }
 
@@ -26,7 +27,7 @@ type FintechUseCase interface {
 	RegisterUserUc(c *gin.Context, userName, email, password string) (string, error)
 	GetUserUc(c *gin.Context, userName string) (UserType, error)
 	GetAccountUc(c *gin.Context, userName string) (Account, error)
-	TransferMoneyUc(c *gin.Context, to, from string, amount int) (Account, error)
+	TransferMoneyUc(c *gin.Context, from, to string, amount int) (Account, error)
 	AddMoneyUc(c *gin.Context, to string, amount int) (Account, error)
 	RemoveMoneyUc(c *gin.Context, from string, amount int) (Account, error)
 }
@@ -36,7 +37,7 @@ type FintechRepository interface {
 	RegisterUserRepository(c *gin.Context, userName, email, password string) (string, error)
 	GetUserRepository(c *gin.Context, userName string) (UserType, error)
 	GetAccountRepository(c *gin.Context, userName string) (Account, error)
-	TransferMoneyRepository(c *gin.Context, to, from string, amount int) (Account, error)
+	TransferMoneyRepository(c *gin.Context, from, to string, amount int) (Account, error)
 	AddMoneyRepository(c *gin.Context, to string, amount int) (Account, error)
 	RemoveMoneyRepository(c *gin.Context, from string, amount int) (Account, error)
 }
@@ -50,4 +51,10 @@ type RegisterRequest struct {
 	UserName string `json:"user_name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type TransferRequest struct {
+	From   string `json:"from"`
+	To     string `json:"to" binding:"required"`
+	Amount int    `json:"amount" binding:"required"`
 }

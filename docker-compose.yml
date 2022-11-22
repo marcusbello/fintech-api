@@ -10,3 +10,13 @@ services:
       - 8093:8093
       - 8094:8094
       - 11210:11210
+  mysql-casbin:
+    image: mysql:8.0
+    volumes:
+      - ./data/casbin-mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: casbin-golang
+    ports:
+      - 3306:3306
+

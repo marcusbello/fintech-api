@@ -33,8 +33,8 @@ func (u fintechUc) GetAccountUc(c *gin.Context, userName string) (domain.Account
 	return u.fintechRepo.GetAccountRepository(c, userName)
 }
 
-func (u fintechUc) TransferMoneyUc(c *gin.Context, to, from string, amount int) (domain.Account, error) {
-	return u.fintechRepo.TransferMoneyRepository(c, to, from, amount)
+func (u fintechUc) TransferMoneyUc(c *gin.Context, from, to string, amount int) (domain.Account, error) {
+	return u.fintechRepo.TransferMoneyRepository(c, from, to, amount)
 }
 
 func NewFintechUseCase(repo domain.FintechRepository) domain.FintechUseCase {

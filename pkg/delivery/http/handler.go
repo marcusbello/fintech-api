@@ -17,27 +17,37 @@ type FintechHandler struct {
 func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 	handler := FintechHandler{fintechUc: fintechUC}
 
-	r.POST("/login", handler.LoginHandler)
-	r.POST("/register", handler.RegisterHandler)
-	r.GET("/me", handler.GetUserHandler)
+	apiRoutes := r.Group("/api")
+	{
+		apiRoutes.POST("/register", handler.RegisterHandler)
+		apiRoutes.POST("/signin", handler.LoginHandler)
+	}
+
+	userProtectedRoutes := apiRoutes.Group("/:username", AuthorizeJWT())
+	{
+		userProtectedRoutes.GET("", handler.GetUserHandler)
+		userProtectedRoutes.GET("/account", handler.GetAccountHandler)
+		userProtectedRoutes.POST("/transfer", handler.TransferMoneyHandler)
+	}
+
+	//r.GET("/me", handler.GetUserHandler)
 }
 
 func (h FintechHandler) LoginHandler(c *gin.Context) {
+	//get details
 	var req domain.LoginRequest
-	err := c.Bind(&req)
-	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"Error": err})
-		return
-	}
-	err = h.fintechUc.LoginUc(c, req.UserName, req.Password)
+	err := c.ShouldBind(&req)
+	//clean inputs
+	user := strings.ToLower(req.UserName)
+	err = h.fintechUc.LoginUc(c, user, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"Error": err})
 		return
 	}
-	user := strings.ToLower(req.UserName)
+	// generate and add token to header
 	jwtToken, err := utils.GenerateToken(user)
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
-	c.JSON(http.StatusOK, gin.H{"Data": "successfully logged in"})
+	c.JSON(http.StatusOK, gin.H{"Data": "successfully logged in as"})
 }
 
 func (h FintechHandler) RegisterHandler(c *gin.Context) {
@@ -48,7 +58,8 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 		return
 	}
 	log.Println("Success on binding")
-	resp, err := h.fintechUc.RegisterUserUc(c, strings.ToLower(req.UserName), req.Email, req.Password)
+	user := strings.ToLower(req.UserName)
+	resp, err := h.fintechUc.RegisterUserUc(c, user, req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"Error": err})
 		return
@@ -57,12 +68,40 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 }
 
 func (h FintechHandler) GetUserHandler(c *gin.Context) {
-	user := c.GetHeader("Authorization")
-	token := strings.Split(user, " ")[1]
-	getUserName, err := utils.ValidateToken(token)
+	getUserName := c.Param("username")
+	resp, err := h.fintechUc.GetUserUc(c, getUserName)
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"Error": err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": fmt.Sprintf("%s", getUserName)})
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h FintechHandler) GetAccountHandler(c *gin.Context) {
+	getUserName := c.Param("username")
+	resp, err := h.fintechUc.GetAccountUc(c, getUserName)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h FintechHandler) TransferMoneyHandler(c *gin.Context) {
+	getUserName := c.Param("username")
+	var req domain.TransferRequest
+	err := c.ShouldBind(&req)
+	if err != nil {
+		log.Printf("Error binding")
+		c.JSON(http.StatusBadRequest, gin.H{"Data": err})
+		return
+	}
+	var resp domain.Account
+	if getUserName != "" {
+		resp, err = h.fintechUc.TransferMoneyUc(c, req.From, req.To, req.Amount)
+		if err != nil {
+			log.Printf("Error in usecase")
+			c.JSON(http.StatusBadRequest, gin.H{"Data": err})
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+	}
 }

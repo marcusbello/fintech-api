@@ -1,37 +1,38 @@
 package main
 
 import (
-	"fintech-api/pkg/database"
+	getconfig "fintech-api/config"
+	"fintech-api/pkg/database/couchbase"
 	fintechhandler "fintech-api/pkg/delivery/http"
 	"fintech-api/pkg/repository"
 	"fintech-api/pkg/usecase"
-	"fintech-api/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
 func main() {
 
-	config := utils.GetConfigs()
+	config := getconfig.GetConfigs()
 
-	couchDb, err := database.InitDatabase(config.CouchDbConfig)
+	couchDb, err := couchbase.InitCouchBase(config.CouchBaseConfig)
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 
 	log.Println("successful db and cache connection")
+
+	//
 	r := gin.Default()
 
-	fintechRepo, err := repository.NewFintechRepository(couchDb, config.BucketName)
+	fintechRepo, err := repository.NewFintechRepository(couchDb, config.CouchBaseBucket)
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 	fintechUseCase := usecase.NewFintechUseCase(fintechRepo)
 
 	fintechhandler.NewFintechHandler(r, fintechUseCase)
-	err = r.Run(config.Port)
+	err = r.Run(config.HTTPPort)
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 }

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"time"
@@ -33,16 +34,23 @@ func GenerateToken(username string) (string, error) {
 	return ss, nil
 }
 
-func ValidateToken(tokenString string) (string, error) {
+func ValidateToken(tokenString, userName string) (error, bool) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return JWT_KEY, nil
 	})
 
-	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
-		//fmt.Printf("%v %v", claims.user, claims.RegisteredClaims.Issuer)
-		return claims.Username, nil
-	} else {
-		return "", err
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		//nil secret key
+		return fmt.Errorf("unexpected signing method: %v", token.Header["alg"]), false
 	}
 
+	claims, ok := token.Claims.(*MyCustomClaims)
+	if ok && token.Valid {
+		log.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
+	}
+	if claims.Username == userName {
+		return nil, true
+	} else {
+		return err, false
+	}
 }

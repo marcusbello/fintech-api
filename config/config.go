@@ -1,19 +1,20 @@
-package utils
+package config
 
 type config struct {
-	CouchDbConfig
-	BucketName string
-	Port       string
+	CouchBaseConfig
+	CouchBaseBucket string
+	HTTPPort        string
 }
 
-type CouchDbConfig struct {
+type CouchBaseConfig struct {
 	Host     string
 	User     string
 	Password string
 }
 
 func GetConfigs() *config {
-	couchConfig := CouchDbConfig{
+	//couchbase config
+	couchConfig := CouchBaseConfig{
 		Host:     "localhost",
 		User:     "Administrator",
 		Password: "couchbase",
@@ -22,8 +23,8 @@ func GetConfigs() *config {
 
 	port := ":3030"
 	return &config{
-		CouchDbConfig: couchConfig,
-		BucketName:    bucketName,
-		Port:          port,
+		CouchBaseConfig: couchConfig,
+		CouchBaseBucket: bucketName,
+		HTTPPort:        port,
 	}
 }
