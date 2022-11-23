@@ -48,9 +48,10 @@ func ValidateToken(tokenString, userName string) (error, bool) {
 	if ok && token.Valid {
 		log.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
 	}
-	if claims.Username == userName {
-		return nil, true
-	} else {
+	if err != nil {
 		return err, false
+	} else if claims.Username == userName {
+		return nil, true
 	}
+	return err, false
 }
