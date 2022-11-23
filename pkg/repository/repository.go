@@ -21,45 +21,27 @@ type fintechRepository struct {
 // TransferMoneyRepository :
 func (r fintechRepository) TransferMoneyRepository(c *gin.Context, from, to string, amount int) (domain.Account, error) {
 	//remove Money
-	var res domain.Account
-	fromAccount, err := r.RemoveMoneyRepository(c, from, amount)
+	log.Println("Stage 1", from, to, amount)
+	senderAcct, err := r.RemoveMoneyRepository(c, from, amount)
 	if err != nil {
-		log.Println("from account:", err)
+		log.Println("RemoveMoney", err)
 		return domain.Account{}, err
 	}
+	log.Println("add money:", senderAcct)
 	//add money
-	_, err = r.AddMoneyRepository(c, to, amount)
+	receiverAcct, err := r.AddMoneyRepository(c, to, amount)
 	if err != nil {
-		log.Println("to account:", err)
+		log.Println("AddMoney", err)
 		return domain.Account{}, err
 	}
-	// add transfer to transactions
-	txUUID, err := uuid.NewRandom()
-	if err != nil {
-		log.Println("uuid error:", err)
-		return domain.Account{}, err
-	}
-	txID := txUUID.String()
-	var tx domain.Transaction
-	tx = domain.Transaction{
-		TransferID: txID,
-		From:       from,
-		To:         to,
-		Amount:     amount,
-	}
-	bankScope := r.bucket.Scope("bank")
-	txCol := bankScope.Collection("transactions")
-	_, err = txCol.Insert(txID, &tx, nil)
-	if err != nil {
-		log.Println("insert error:", err)
+	log.Println("remove money:", receiverAcct)
+	//add to txDocument
+	if err = r.AddToTransaction(c, from, to, amount); err != nil {
+		log.Println("AddToTransaction", err)
 		return domain.Account{}, err
 	}
 	// attach to response
-	res = domain.Account{
-		UserId:  fromAccount.UserId,
-		Balance: fromAccount.Balance,
-	}
-	return res, nil
+	return senderAcct, nil
 }
 
 // AddMoneyRepository :
@@ -83,10 +65,10 @@ func (r fintechRepository) AddMoneyRepository(c *gin.Context, to string, amount 
 	}
 	// prepare response
 	res = domain.Account{
-		UserId:  userID,
-		Balance: balance + amount,
+		UserName: userID,
+		Balance:  balance + amount,
 	}
-	_, err = userCol.Upsert(to, &res, nil)
+	_, err = userCol.Upsert(userID, &res, nil)
 	if err != nil {
 		return res, err
 	}
@@ -112,8 +94,8 @@ func (r fintechRepository) RemoveMoneyRepository(c *gin.Context, from string, am
 	newBalance := balance - amount
 	// prepare response
 	res = domain.Account{
-		UserId:  userID,
-		Balance: newBalance,
+		UserName: userID,
+		Balance:  newBalance,
 	}
 	_, err = acctCol.Upsert(userID, &res, nil)
 	if err != nil {
@@ -150,16 +132,15 @@ func (r fintechRepository) LoginRepository(c *gin.Context, userName, password st
 
 // RegisterUserRepository :
 func (r fintechRepository) RegisterUserRepository(c *gin.Context, userName, email, password string) (string, error) {
-	var res domain.UserType
+	var res domain.User
 	bytePass := []byte(password)
 	hPass, _ := bcrypt.GenerateFromPassword(bytePass, bcrypt.DefaultCost)
 	pass := string(hPass)
-	res = domain.UserType{
+	res = domain.User{
 		UserName: userName,
 		Email:    email,
 		Password: pass,
 		Role:     "member",
-		Account:  domain.Account{},
 	}
 	bankScope := r.bucket.Scope("bank")
 	userCol := bankScope.Collection("users")
@@ -167,10 +148,9 @@ func (r fintechRepository) RegisterUserRepository(c *gin.Context, userName, emai
 	if err != nil {
 		return "", err
 	}
-	var acctType domain.Account
-	acctType = domain.Account{
-		UserId:  userName,
-		Balance: 0,
+	acctType := domain.Account{
+		UserName: userName,
+		Balance:  2000,
 	}
 	acctCol := bankScope.Collection("accounts")
 	_, err = acctCol.Insert(userName, &acctType, nil)
@@ -183,36 +163,41 @@ func (r fintechRepository) RegisterUserRepository(c *gin.Context, userName, emai
 
 // GetUserRepository GetUserNameRepository :
 func (r fintechRepository) GetUserRepository(c *gin.Context, userName string) (domain.UserType, error) {
-	var inUser domain.UserType
+	var inUser domain.User
+	var resp domain.UserType
 	bankScope := r.bucket.Scope("bank")
 	userCol := bankScope.Collection("users")
 	// Get the document back
 	getResult, err := userCol.Get(userName, nil)
 	if errors.Is(err, gocb.ErrDocumentNotFound) {
-		return inUser, errors.New("user not found")
+		return resp, errors.New("user not found")
 	} else if err != nil {
-		return inUser, err
+		return resp, err
 	}
 	err = getResult.Content(&inUser)
 	if err != nil {
-		return inUser, err
+		return resp, err
 	}
 	//get user account balance
 	accountBalance, err := r.GetAccountRepository(c, userName)
 	if err != nil {
-		return inUser, nil
+		return resp, nil
 	}
 	//removing username from response
-	accountBalance.UserId = ""
-	inUser.Account = accountBalance
+	accountBalance.UserName = ""
+	resp = domain.UserType{
+		UserName: inUser.UserName,
+		Email:    inUser.Email,
+		Account:  accountBalance,
+	}
 	// reset password to empty
-	inUser.Password = ""
-	return inUser, nil
+	return resp, nil
 }
 
 // GetAccountRepository :
 func (r fintechRepository) GetAccountRepository(c *gin.Context, userName string) (domain.Account, error) {
 	var userAcct domain.Account
+	log.Println("username", userName)
 	bankScope := r.bucket.Scope("bank")
 	col := bankScope.Collection("accounts")
 	// Get the document back
@@ -227,6 +212,31 @@ func (r fintechRepository) GetAccountRepository(c *gin.Context, userName string)
 		return userAcct, err
 	}
 	return userAcct, nil
+}
+
+// AddToTransaction :
+func (r fintechRepository) AddToTransaction(c *gin.Context, from, to string, amount int) error {
+	// add transfer to transactions
+	txUUID, err := uuid.NewRandom()
+	if err != nil {
+		log.Println("uuid error:", err)
+		return err
+	}
+	txID := txUUID.String()
+	tx := domain.Transaction{
+		TransferID: txID,
+		From:       from,
+		To:         to,
+		Amount:     amount,
+	}
+	bankScope := r.bucket.Scope("bank")
+	txCol := bankScope.Collection("transactions")
+	_, err = txCol.Insert(txID, &tx, nil)
+	if err != nil {
+		log.Println("insert error:", err)
+		return err
+	}
+	return nil
 }
 
 // NewFintechRepository :

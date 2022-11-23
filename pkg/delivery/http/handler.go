@@ -94,14 +94,11 @@ func (h FintechHandler) TransferMoneyHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Data": err})
 		return
 	}
-	var resp domain.Account
-	if getUserName != "" {
-		resp, err = h.fintechUc.TransferMoneyUc(c, req.From, req.To, req.Amount)
-		if err != nil {
-			log.Printf("Error in usecase")
-			c.JSON(http.StatusBadRequest, gin.H{"Data": err})
-			return
-		}
-		c.JSON(http.StatusOK, resp)
+	resp, err := h.fintechUc.TransferMoneyUc(c, getUserName, req.To, req.Amount)
+	if err != nil {
+		log.Printf("Error in usecase")
+		c.JSON(http.StatusBadRequest, gin.H{"Data": err})
+		return
 	}
+	c.JSON(http.StatusOK, resp)
 }

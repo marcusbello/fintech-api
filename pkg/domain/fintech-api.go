@@ -2,17 +2,26 @@ package domain
 
 import "github.com/gin-gonic/gin"
 
+type User struct {
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+	Password string `json:"password,omitempty"`
+	Role     string `json:"role"`
+}
+
 type UserType struct {
 	UserName string  `json:"user_name"`
 	Email    string  `json:"email"`
-	Password string  `json:"password,omitempty"`
-	Role     string  `json:"role"`
 	Account  Account `json:"account,omitempty"`
 }
 
 type Account struct {
-	UserId  string `json:"userId,omitempty"`
-	Balance int    `json:"balance"`
+	UserName string `json:"user_name,omitempty"`
+	Balance  int    `json:"balance"`
+}
+
+type AccountType struct {
+	Balance int `json:"balance"`
 }
 
 type Transaction struct {
@@ -40,6 +49,7 @@ type FintechRepository interface {
 	TransferMoneyRepository(c *gin.Context, from, to string, amount int) (Account, error)
 	AddMoneyRepository(c *gin.Context, to string, amount int) (Account, error)
 	RemoveMoneyRepository(c *gin.Context, from string, amount int) (Account, error)
+	AddToTransaction(c *gin.Context, from, to string, amount int) error
 }
 
 type LoginRequest struct {
