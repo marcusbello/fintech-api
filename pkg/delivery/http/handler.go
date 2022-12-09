@@ -23,7 +23,7 @@ func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 		apiRoutes.POST("/signin", handler.LoginHandler)
 	}
 
-	userProtectedRoutes := apiRoutes.Group("/:username", AuthorizeJWT())
+	userProtectedRoutes := apiRoutes.Group("/user/:username", AuthorizeJWT())
 	{
 		userProtectedRoutes.GET("", handler.GetUserHandler)
 		userProtectedRoutes.GET("/account", handler.GetAccountHandler)
@@ -37,17 +37,27 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 	//get details
 	var req domain.LoginRequest
 	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
 	//clean inputs
 	user := strings.ToLower(req.UserName)
-	err = h.fintechUc.LoginUc(c, user, req.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"Error": err})
+	if err = h.fintechUc.LoginUc(c, user, req.Password); err != nil {
+		c.Error(err)
+		log.Println("LoginHandler: ", err)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, c.Errors)
 		return
 	}
 	// generate and add token to header
 	jwtToken, err := utils.GenerateToken(user)
+	if err != nil {
+		c.Error(err)
+		log.Println("GenerateToken: ", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, c.Errors)
+		return
+	}
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
-	c.JSON(http.StatusOK, gin.H{"Data": "successfully logged in as"})
+	c.JSON(http.StatusOK, gin.H{"data": fmt.Sprintf("successfully logged in as %s", req.UserName)})
 }
 
 func (h FintechHandler) RegisterHandler(c *gin.Context) {

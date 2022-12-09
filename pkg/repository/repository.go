@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fintech-api/pkg/domain"
+	"fintech-api/utils"
 	"github.com/couchbase/gocb/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,7 +26,7 @@ func (r fintechRepository) TransferMoneyRepository(c *gin.Context, from, to stri
 	senderAcct, err := r.RemoveMoneyRepository(c, from, amount)
 	if err != nil {
 		log.Println("RemoveMoney", err)
-		return domain.Account{}, err
+		return domain.Account{}, utils.ErrInsufficientFunds
 	}
 	log.Println("add money:", senderAcct)
 	//add money
@@ -89,7 +90,7 @@ func (r fintechRepository) RemoveMoneyRepository(c *gin.Context, from string, am
 	balance := userAcct.Balance
 	if amount > balance {
 		log.Println("lower balance")
-		return domain.Account{}, errors.New("insufficient funds")
+		return domain.Account{}, utils.ErrInsufficientFunds
 	}
 	newBalance := balance - amount
 	// prepare response
@@ -100,7 +101,7 @@ func (r fintechRepository) RemoveMoneyRepository(c *gin.Context, from string, am
 	_, err = acctCol.Upsert(userID, &res, nil)
 	if err != nil {
 		log.Println("updating balance:", err)
-		return res, err
+		return res, utils.ErrDocuments
 	}
 
 	return res, nil
@@ -115,17 +116,21 @@ func (r fintechRepository) LoginRepository(c *gin.Context, userName, password st
 		gocb.GetSpec("password", nil),
 	}, nil)
 	if errors.Is(err, gocb.ErrDocumentNotFound) {
-		return errors.New("user not found")
+		log.Println("DocumentNotFound:", err)
+		return utils.ErrUserNotFound
 	} else if err != nil {
-		return err
+		log.Println("DocumentError:", err)
+		return utils.ErrDocuments
 	}
 	var userPass string
 	err = result.ContentAt(0, &userPass)
 	if err != nil {
-		return err
+		log.Println("PasswordNotFound:", err)
+		return utils.ErrDocuments
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(userPass), []byte(password)); err != nil {
-		return err
+		log.Println("IncorrectPassword:", err)
+		return utils.ErrIncorrectPassword
 	}
 	return nil
 }
@@ -203,13 +208,16 @@ func (r fintechRepository) GetAccountRepository(c *gin.Context, userName string)
 	// Get the document back
 	getResult, err := col.Get(userName, nil)
 	if errors.Is(err, gocb.ErrDocumentNotFound) {
-		return userAcct, errors.New("user not found")
+		log.Println("Document not found:", err)
+		return userAcct, utils.ErrUserNotFound
 	} else if err != nil {
-		return userAcct, err
+		log.Println("Document err:", err)
+		return userAcct, utils.ErrDocuments
 	}
 	err = getResult.Content(&userAcct)
 	if err != nil {
-		return userAcct, err
+		log.Println("Document err:", err)
+		return userAcct, utils.ErrDocuments
 	}
 	return userAcct, nil
 }
@@ -234,7 +242,7 @@ func (r fintechRepository) AddToTransaction(c *gin.Context, from, to string, amo
 	_, err = txCol.Insert(txID, &tx, nil)
 	if err != nil {
 		log.Println("insert error:", err)
-		return err
+		return utils.ErrDocuments
 	}
 	return nil
 }
