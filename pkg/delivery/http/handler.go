@@ -1,10 +1,13 @@
 package http
 
 import (
+	"fintech-api/docs"
 	"fintech-api/pkg/domain"
 	"fintech-api/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
 	"strings"
@@ -14,10 +17,29 @@ type FintechHandler struct {
 	fintechUc domain.FintechUseCase
 }
 
+// NewFintechHandler godoc
+// @title          Fintech API
+// @version        1.0
+// @description    This is a fintech webserver.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name  API Support
+// @contact.url   http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url  http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host     localhost:3030
+// @BasePath /api/v1
+
 func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 	handler := FintechHandler{fintechUc: fintechUC}
 
-	apiRoutes := r.Group("/api")
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	v1 := r.Group("/api/v1")
+
+	apiRoutes := v1.Group("/")
 	{
 		apiRoutes.POST("/register", handler.RegisterHandler)
 		apiRoutes.POST("/signin", handler.LoginHandler)
@@ -30,9 +52,21 @@ func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 		userProtectedRoutes.POST("/transfer", handler.TransferMoneyHandler)
 	}
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	//r.GET("/me", handler.GetUserHandler)
 }
 
+// LoginHandler godoc
+// @Summary Customer Login
+// @Schemes
+// @Description Login endpoint
+// @Tags        Authentication
+// @Accept		json
+// @Produce     json
+// @Param       request body domain.LoginRequest true "login details"
+// @Success     200    {object} utils.Response
+// @Failure		401		{object} utils.Response
+// @Router      /signin [post]
 func (h FintechHandler) LoginHandler(c *gin.Context) {
 	//get details
 	var req domain.LoginRequest

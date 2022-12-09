@@ -9,7 +9,7 @@ Content-Type: application/json
   "role": "admin"
 }
 ###
-POST http://localhost:3030/api/signin
+POST http://localhost:3030/api/v1/signin
 Content-Type: application/json
 
 {

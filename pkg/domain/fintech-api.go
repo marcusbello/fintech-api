@@ -52,19 +52,22 @@ type FintechRepository interface {
 	AddToTransaction(c *gin.Context, from, to string, amount int) error
 }
 
+// LoginRequest example
 type LoginRequest struct {
 	UserName string `json:"user_name" binding:"required"`
 	Password string `json:"password" binding:"required"`
-}
+} //@name LoginRequest
 
+// RegisterRequest example
 type RegisterRequest struct {
 	UserName string `json:"user_name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
-}
+} //@name RegisterRequest
 
+// TransferRequest example
 type TransferRequest struct {
 	From   string `json:"from"`
 	To     string `json:"to" binding:"required"`
 	Amount int    `json:"amount" binding:"required"`
-}
+} //@name TransferRequest
