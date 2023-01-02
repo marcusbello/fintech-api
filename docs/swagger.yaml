@@ -1,0 +1,254 @@
+basePath: /api/v1
+definitions:
+  Account:
+    properties:
+      balance:
+        type: integer
+      user_name:
+        type: string
+    type: object
+  LoginRequest:
+    properties:
+      password:
+        type: string
+      user_name:
+        type: string
+    required:
+    - password
+    - user_name
+    type: object
+  RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      user_name:
+        type: string
+    required:
+    - email
+    - password
+    - user_name
+    type: object
+  Response:
+    properties:
+      data:
+        type: string
+      error: {}
+    type: object
+  TransferRequest:
+    properties:
+      amount:
+        type: integer
+      to:
+        type: string
+    required:
+    - amount
+    - to
+    type: object
+  UserProfile:
+    properties:
+      account:
+        $ref: '#/definitions/Account'
+      email:
+        type: string
+      user_name:
+        type: string
+    type: object
+host: localhost:3030
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a fintech webserver.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Fintech API
+  version: "1.0"
+paths:
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register endpoint
+      parameters:
+      - description: login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+      summary: Customer Register
+      tags:
+      - Sign-Up
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: Login endpoint
+      operationId: Authentication
+      parameters:
+      - description: login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+      summary: Customer Login
+      tags:
+      - Authentication
+  /user/{user_name}:
+    get:
+      consumes:
+      - application/json
+      description: Customer Profile endpoint
+      parameters:
+      - description: username
+        in: path
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserProfile'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+      security:
+      - bearerAuth: []
+      summary: Customer Profile
+      tags:
+      - Profile
+  /user/{user_name}/account:
+    get:
+      consumes:
+      - application/json
+      description: Customer Account endpoint
+      parameters:
+      - description: username
+        in: path
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Account'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+      security:
+      - bearerAuth: []
+      summary: Customer Bank Account
+      tags:
+      - Banking
+  /user/{user_name}/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Customer Transfer endpoint
+      parameters:
+      - description: username
+        in: path
+        name: user_name
+        required: true
+        type: string
+      - description: login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/TransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Account'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+      security:
+      - bearerAuth: []
+      summary: Transfer Money
+      tags:
+      - Banking
+securityDefinitions:
+  bearerAuth:
+    description: Description for what is this security definition being used
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
