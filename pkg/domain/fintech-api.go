@@ -9,16 +9,18 @@ type User struct {
 	Role     string `json:"role"`
 }
 
+// UserType example
 type UserType struct {
 	UserName string  `json:"user_name"`
 	Email    string  `json:"email"`
 	Account  Account `json:"account,omitempty"`
-}
+} //@name UserProfile
 
+// Account example
 type Account struct {
 	UserName string `json:"user_name,omitempty"`
 	Balance  int    `json:"balance"`
-}
+} //@name Account
 
 type AccountType struct {
 	Balance int `json:"balance"`
@@ -67,7 +69,7 @@ type RegisterRequest struct {
 
 // TransferRequest example
 type TransferRequest struct {
-	From   string `json:"from"`
+	From   string `json:"from" swaggerignore:"true"`
 	To     string `json:"to" binding:"required"`
 	Amount int    `json:"amount" binding:"required"`
 } //@name TransferRequest

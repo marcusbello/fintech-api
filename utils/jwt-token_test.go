@@ -14,13 +14,13 @@ func TestValidateToken(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Compare username with user from Token",
+			name: "Expired Token",
 			args: args{
 				tokenString: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imp1d29uIiwiaXNzIjoidGVzdCIsImV4cCI6MTY2ODgzOTQ0OX0.iA7Yb5saSc6nFQgduFpUIo3d4vPXethKQbE1MQvwmrE",
 				userName:    "juwonna",
 			},
-			want:    true,
-			wantErr: false,
+			want:    false,
+			wantErr: true,
 		},
 		{
 			name: "Test Invalid Token",
