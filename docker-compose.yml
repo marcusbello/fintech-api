@@ -1,9 +1,23 @@
 version: '2.x'
 services:
-  http:
-    image: service_test
+  fintech-test:
+    image: fintech-app:test
     ports:
-      - "8080:3030"
+      - "8080:4040"
+    environment:
+      - PORT=4040
+    depends_on:
+      - dbnode1
+  fintech-prod:
+    image: fintech-app:0.0.1
+    ports:
+      - "8080:4040"
+    environment:
+      - PORT=4040
+      - APP_COUCHBASE_HOST=localhost
+      - APP_COUCHBASE_USER=Administrator
+      - APP_COUCHBASE_PASSWORD=couchbase
+      - APP_COUCHBASE_BUCKET=fintech
     depends_on:
       - dbnode1
   dbnode1:
@@ -16,5 +30,3 @@ services:
       - 8093:8093
       - 8094:8094
       - 11210:11210
-
-

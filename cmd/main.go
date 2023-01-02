@@ -16,17 +16,17 @@ func main() {
 
 	couchDb, err := couchbase.InitCouchBase(config.CouchBaseConfig)
 	if err != nil {
-		log.Printf("%v\n", err)
+		log.Fatalf("failed to establish db connection %v\n", err)
 	}
 
-	log.Println("successful db and cache connection")
+	log.Println("Couchbase handshake successful")
 
 	//
 	r := gin.Default()
 
 	fintechRepo, err := repository.NewFintechRepository(couchDb, config.CouchBaseBucket)
 	if err != nil {
-		log.Printf("%v\n", err)
+		log.Fatalf("main.fintechRepo: Couchbase bucket or server error: %v\n", err)
 	}
 	fintechUseCase := usecase.NewFintechUseCase(fintechRepo)
 

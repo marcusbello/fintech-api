@@ -1,15 +1,21 @@
 #BUILD
-FROM golang:latest as build
+FROM golang:1.19 as build
 
-COPY . /service
+# Environment variables
+ENV PORT=3030
+ENV APP_COUCHBASE_HOST=localhost
+ENV APP_COUCHBASE_USER=Administrator
+ENV APP_COUCHBASE_PASSWORD=couchbase
+ENV APP_COUCHBASE_BUCKET=fintech
 
-WORKDIR /service
+COPY . /app
 
-RUN ls
+WORKDIR /app
 
-RUN cd /service/cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /http-service
+RUN cd cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /main
 
-CMD /http-service
+
+CMD /main
 
 # TEST
 FROM build as test
@@ -17,12 +23,19 @@ FROM build as test
 # PRODUCTION
 FROM alpine:latest as production
 
+# Environment variables
+ENV PORT=3030
+ENV APP_COUCHBASE_HOST=localhost
+ENV APP_COUCHBASE_USER=Administrator
+ENV APP_COUCHBASE_PASSWORD=couchbase
+ENV APP_COUCHBASE_BUCKET=fintech
+
 RUN apk --no-cache add ca-certificates
 
-COPY --from=build /http-service ./
+COPY --from=build ./main ./
 
-RUN chmod +x ./http-service
+RUN chmod +x ./main
 
-EXPOSE 3030
+EXPOSE ${PORT}
 
-ENTRYPOINT ["./http-service"]
+ENTRYPOINT ["./main"]

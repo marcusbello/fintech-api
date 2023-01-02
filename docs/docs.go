@@ -25,6 +25,26 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/ping": {
+            "get": {
+                "description": "Ping",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HealthCheck"
+                ],
+                "summary": "Ping Healthcheck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PingPong"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register endpoint",
@@ -382,6 +402,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.PingPong": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -401,7 +429,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Fintech API",
-	Description:      "This is a fintech webserver.",
+	Description:      "Fintech Bank API, a financial management application written in Go!",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

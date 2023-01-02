@@ -33,6 +33,10 @@ type Transaction struct {
 	Amount     int    `json:"amount"`
 }
 
+type PingPong struct {
+	Data string `json:"data"`
+}
+
 type FintechUseCase interface {
 	LoginUc(c *gin.Context, userName, password string) error
 	RegisterUserUc(c *gin.Context, userName, email, password string) (string, error)

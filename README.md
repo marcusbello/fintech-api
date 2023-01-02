@@ -40,7 +40,7 @@ curl -g http://localhost/3030/api/v1/ping
 
 Official OpenAPI documentation is available after launching the app on localhost, visit
 ```bash
-http://localhost:3030/api/v1/swagger
+http://localhost:3030/swagger/index.html
 ```
 on any browser.
 

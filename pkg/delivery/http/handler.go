@@ -20,7 +20,7 @@ type FintechHandler struct {
 // NewFintechHandler godoc
 // @title          Fintech API
 // @version        1.0
-// @description    This is a fintech webserver.
+// @description    Fintech Bank API, a financial management application written in Go!
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name  API Support
@@ -46,6 +46,7 @@ func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 
 	apiRoutes := v1.Group("/")
 	{
+		apiRoutes.POST("/ping", handler.PingHandler)
 		apiRoutes.POST("/register", handler.RegisterHandler)
 		apiRoutes.POST("/signin", handler.LoginHandler)
 	}
@@ -61,11 +62,24 @@ func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 	//r.GET("/me", handler.GetUserHandler)
 }
 
+// PingHandler godoc
+// @Summary Ping Healthcheck
+// @Schemes
+// @Description Ping
+// @Tags        HealthCheck
+// @Produce     json
+// @Success     200 {object} domain.PingPong
+// @Router      /ping [get]
+func (h FintechHandler) PingHandler(c *gin.Context) {
+	resp := &domain.PingPong{Data: "Pong!"}
+	c.JSON(http.StatusOK, resp)
+}
+
 // LoginHandler godoc
 // @Summary Customer Login
 // @Schemes
 // @Description Login endpoint
-// @ID Authentication
+// @ID          Authentication
 // @Tags        Authentication
 // @Accept      json
 // @Produce     json
@@ -141,8 +155,8 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 }
 
 // GetUserHandler godoc
-// @Security    bearerAuth
-// @Summary Customer Profile
+// @Security bearerAuth
+// @Summary  Customer Profile
 // @Schemes
 // @Description Customer Profile endpoint
 // @Tags        Profile
@@ -167,8 +181,8 @@ func (h FintechHandler) GetUserHandler(c *gin.Context) {
 }
 
 // GetAccountHandler godoc
-// @Security    bearerAuth
-// @Summary Customer Bank Account
+// @Security bearerAuth
+// @Summary  Customer Bank Account
 // @Schemes
 // @Description Customer Account endpoint
 // @Tags        Banking
@@ -193,8 +207,8 @@ func (h FintechHandler) GetAccountHandler(c *gin.Context) {
 }
 
 // TransferMoneyHandler godoc
-// @Security    bearerAuth
-// @Summary Transfer Money
+// @Security bearerAuth
+// @Summary  Transfer Money
 // @Schemes
 // @Description Customer Transfer endpoint
 // @Tags        Banking
