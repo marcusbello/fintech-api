@@ -1,7 +1,7 @@
 version: '2.x'
 services:
   fintech-test:
-    image: fintech-app:test
+    image: fintech-app-test:test
     ports:
       - "8080:4040"
     environment:
@@ -21,7 +21,7 @@ services:
     depends_on:
       - dbnode1
   dbnode1:
-    image: couchbase/server
+    image: couchbase/server:7.0.5
     volumes:
       - ./data/couchDB/node1:/opt/couchbase/var
     ports:
@@ -30,3 +30,8 @@ services:
       - 8093:8093
       - 8094:8094
       - 11210:11210
+  dbnode2:
+    image: couchbase/server:7.0.5
+    volumes:
+      - ./data/couchDB/node1:/opt/couchbase/var
+

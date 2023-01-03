@@ -14,14 +14,13 @@ WORKDIR /app
 
 RUN cd cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /main
 
-
 CMD /main
 
 # TEST
 FROM build as test
 
 # PRODUCTION
-FROM alpine:latest as production
+FROM alpine:3.14 as production
 
 # Environment variables
 ENV PORT=3030
