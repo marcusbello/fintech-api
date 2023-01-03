@@ -66,7 +66,7 @@ This project has the following dependencies:
 - Couchbase Database package
 
 ## Contributing
-If you would like to contribute to the project, please fork the repository and create a pull request with your changes. Thank you for considering contributing!
+If you would like to contribute to the project, please fork the repository and create a pull request with your changes on a new branch. Thank you for considering contributing!
 
 ## License
 This project is licensed under the [MIT](https://en.wikipedia.org/wiki/MIT_License) License. See the [LICENSE](https://github.com/marcusbello/fintech-api/blob/master/LICENSE) file for more details.
