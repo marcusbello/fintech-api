@@ -30,13 +30,13 @@ You can configure certain aspects of the app by modifying the values in the `doc
 The file is self-documented, so you can see what each value does.
 
 ## Usage
-After launching the app, you will be able to access the it from your localhost on port 3030, test with:
+After launching the app, you will be able to access it from your localhost on port 3030, test with:
 ```bash
 curl -g http://localhost/3030/api/v1/ping
 ```
-* NB: Edit the defaut port (:3030) to another port of your choice following the configuration.
+* NB: Edit the default port (:3030) to another port of your choice following the configuration.
 
-##Documentation
+## Documentation
 
 Official OpenAPI documentation is available after launching the app on localhost, visit
 ```bash
@@ -56,7 +56,7 @@ on any browser.
 ## Tests
 To run the tests for the app, navigate to the root directory of the project and run:
 ```bash
-go test .
+go test ./...
 ```
 
 ## Dependencies
@@ -69,7 +69,7 @@ This project has the following dependencies:
 If you would like to contribute to the project, please fork the repository and create a pull request with your changes. Thank you for considering contributing!
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the [MIT](https://en.wikipedia.org/wiki/MIT_License) License. See the [LICENSE](https://github.com/marcusbello/fintech-api/blob/master/LICENSE) file for more details.
 
 ## Author
 
