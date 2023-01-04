@@ -10,6 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ type FintechHandler struct {
 }
 
 // NewFintechHandler godoc
-// @title          Fintech API
+// @title          Fintech Bank API
 // @version        1.0
 // @description    Fintech Bank API, a financial management application written in Go!
 // @termsOfService http://swagger.io/terms/
@@ -91,11 +92,11 @@ func (h FintechHandler) PingHandler(c *gin.Context) {
 func (h FintechHandler) LoginHandler(c *gin.Context) {
 	//get details
 	var req domain.LoginRequest
-	err := c.ShouldBind(&req)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err) //nolint:errcheck
 		log.Println("LoginHandler 1: ", err)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, c.Errors)
+		c.AbortWithStatusJSON(http.StatusBadRequest, c.Errors)
 		return
 	}
 	//clean inputs
@@ -106,7 +107,7 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, c.Errors)
 		return
 	}
-	// generate and add token to header
+	// generate token
 	jwtToken, err := utils.GenerateToken(user)
 	if err != nil {
 		c.Error(err) //nolint:errcheck
@@ -116,7 +117,7 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 	}
 	//c.Header("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	c.JSON(http.StatusOK, gin.H{"data": fmt.Sprintf("successfully logged in as %s", req.UserName),
-		"token": jwtToken,
+		"accessToken": jwtToken,
 	})
 }
 
@@ -135,14 +136,51 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 // @Router      /register [post]
 func (h FintechHandler) RegisterHandler(c *gin.Context) {
 	var req domain.RegisterRequest
-	err := c.ShouldBind(&req)
+	// username and password matching regex rule
+	usernameRegex := "^[a-zA-Z0-9_]{4,20}$"
+	passwordRegex := "^[a-zA-Z0-9!@#%^&*()_+=-]{8,20}$"
+	// compile the regular expression
+	usernameRx, err := regexp.Compile(usernameRegex)
+	if err != nil {
+		// the regular expression is invalid
+		c.Error(err) //nolint:errcheck
+		log.Println("RegisterHandler: ", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, c.Errors)
+		return
+	}
+	passwordRx, err := regexp.Compile(passwordRegex)
+	if err != nil {
+		// the password regular expression is invalid
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// catch binding error
+	err = c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err) //nolint:errcheck
 		log.Println("RegisterHandler: ", err)
-		c.AbortWithStatusJSON(http.StatusForbidden, c.Errors)
+		c.AbortWithStatusJSON(http.StatusBadRequest, c.Errors)
 		return
 	}
-	log.Println("Success on binding")
+	// check if the username is valid
+	if !usernameRx.MatchString(req.UserName) {
+		// the username is invalid
+		c.Error(err) //nolint:errcheck
+		log.Println("RegisterHandler: ", err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, c.Errors)
+		return
+	}
+	// check if password is valid
+	if !passwordRx.MatchString(req.Password) {
+		// the password is invalid
+		c.Error(err) //nolint:errcheck
+		log.Println("RegisterHandler: ", err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, c.Errors)
+		return
+	}
+
+	//log.Println("Success on binding")
 	user := strings.ToLower(req.UserName)
 	resp, err := h.fintechUc.RegisterUserUc(c, user, req.Email, req.Password)
 	if err != nil {

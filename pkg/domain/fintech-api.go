@@ -33,9 +33,10 @@ type Transaction struct {
 	Amount     int    `json:"amount"`
 }
 
+// PingPong example
 type PingPong struct {
 	Data string `json:"data"`
-}
+} //@name PingPong
 
 type FintechUseCase interface {
 	LoginUc(c *gin.Context, userName, password string) error
@@ -67,7 +68,7 @@ type LoginRequest struct {
 // RegisterRequest example
 type RegisterRequest struct {
 	UserName string `json:"user_name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required, email"`
 	Password string `json:"password" binding:"required"`
 } //@name RegisterRequest
 

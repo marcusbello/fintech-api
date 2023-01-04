@@ -44,14 +44,14 @@ http://localhost:3030/swagger/index.html
 ```
 on any browser.
 
-| Endpoints                                            | Description                      | Requirements (JSON Body) |
-|------------------------------------------------------|----------------------------------|-------|
-| POST http://localhost:3030/api/v1/register           | User register                    | {"user_name":"marcus", "password":"marcusPassword" "email":"marcus@email.com",} |
-| POST http://localhost:3030/api/v1/signin             | User login                       | {"user_name":"marcus", "password":"marcusPassword"} |
-| GET http://localhost:3030/api/v1/marcus/user         | Marcus's Profile                 | empty |
-| POST http://localhost:3030/api/v1/marcus/transfer    | Transfer money                   | {"to": "another_user", "amount":20} |
-| POST http://localhost:3030/api/v1/marcus/deposit     | Deposit money (work in progress) | {"amount":20} |
-| GET http://localhost:3030/api/v1/marcus/transactions | Marcus's transaction history     | empty |
+| Method | Endpoints                                             | Description                      | Requirements (JSON Body) |
+|---------|-------------------------------------------------------|----------------------------------|-------|
+| POST | http://localhost:3030/api/v1/register                 | User register                    | {"user_name":"marcus", "password":"marcusPassword" "email":"marcus@email.com",} |
+| POST | http://localhost:3030/api/v1/signin                   | User login                       | {"user_name":"marcus", "password":"marcusPassword"} |
+| GET | http://localhost:3030/api/v1/user/marcus              | Marcus's Profile                 | empty |
+| POST | http://localhost:3030/api/v1/user/marcus/transfer     | Transfer money                   | {"to": "another_user", "amount":20} |
+| POST | http://localhost:3030/api/v1/user/marcus/deposit      | Deposit money (work in progress) | {"amount":20} |
+| GET | http://localhost:3030/api/v1/user/marcus/transactions | Marcus's transaction history     | empty |
 
 ## Tests
 To run the tests for the app, navigate to the root directory of the project and run:
