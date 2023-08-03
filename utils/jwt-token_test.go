@@ -45,3 +45,5 @@ func TestValidateToken(t *testing.T) {
 		})
 	}
 }
+
+// TODO: write a helper function that will generate expired token and invalid token for our test

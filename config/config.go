@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-type config struct {
+type Config struct {
 	CouchBaseConfig
 	CouchBaseBucket string
 	HTTPPort        string
@@ -19,8 +19,8 @@ type CouchBaseConfig struct {
 	Password string
 }
 
-func GetConfigs() *config {
-	getCredentials := &config{}
+func GetConfigs() *Config {
+	getCredentials := &Config{}
 	//couchbase config
 	getCredentials.CouchBaseConfig = getCouchBase()
 	//couchbase bucket
