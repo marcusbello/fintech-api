@@ -23,10 +23,6 @@ func main() {
 	//
 	r := gin.Default()
 
-	//fintechRepo, err := repository.NewFintechRepository(couchDb, config.CouchBaseBucket)
-	//if err != nil {
-	//	log.Fatalf("main.fintechRepo: Couchbase bucket or server error: %v\n", err)
-	//}
 	fintechRepo, err := couchbase.NewCouchbaseRepo(couchDb, config.CouchBaseBucket)
 	if err != nil {
 		log.Fatalf("main.fintechRepo: Couchbase bucket or server error: %v\n", err)

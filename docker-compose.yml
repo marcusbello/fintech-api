@@ -1,7 +1,8 @@
 version: '2.x'
 services:
   fintech-test:
-    image: fintech-app-test:test
+#    image: fintech-app-test:test
+    build: ./
     ports:
       - "8080:4040"
     environment:

@@ -20,7 +20,7 @@ type FintechHandler struct {
 
 // NewFintechHandler godoc
 // @title          Fintech Bank API
-// @version        1.0
+// @version        1.0.0
 // @description    Fintech Bank API, a financial management application written in Go!
 // @termsOfService http://swagger.io/terms/
 
@@ -71,8 +71,8 @@ func NewFintechHandler(r *gin.Engine, fintechUC domain.FintechUseCase) {
 // @Produce     json
 // @Success     200 {object} domain.PingPong
 // @Router      /ping [get]
-func (h FintechHandler) PingHandler(c *gin.Context) {
-	resp := &domain.PingPong{Data: "Pong!"}
+func (h *FintechHandler) PingHandler(c *gin.Context) {
+	resp := &PingPong{Data: "Pong!"}
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -89,12 +89,12 @@ func (h FintechHandler) PingHandler(c *gin.Context) {
 // @Failure     401     {object} utils.Response
 // @Failure     500     {object} utils.Response
 // @Router      /signin [post]
-func (h FintechHandler) LoginHandler(c *gin.Context) {
+func (h *FintechHandler) LoginHandler(c *gin.Context) {
 	//get details
-	var req domain.LoginRequest
+	var req LoginRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.Error(err) //nolint:errcheck
+		c.Error(err)
 		log.Println("LoginHandler 1: ", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, c.Errors)
 		return
@@ -102,7 +102,7 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 	//clean inputs
 	user := strings.ToLower(req.UserName)
 	if err = h.fintechUc.LoginUc(c, user, req.Password); err != nil {
-		c.Error(err) //nolint:errcheck
+		c.Error(err)
 		log.Println("LoginHandler 2: ", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, c.Errors)
 		return
@@ -110,7 +110,7 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 	// generate token
 	jwtToken, err := utils.GenerateToken(user)
 	if err != nil {
-		c.Error(err) //nolint:errcheck
+		c.Error(err)
 		log.Println("GenerateToken: ", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, c.Errors)
 		return
@@ -134,8 +134,8 @@ func (h FintechHandler) LoginHandler(c *gin.Context) {
 // @Failure     403     {object} utils.Response
 // @Failure     500     {object} utils.Response
 // @Router      /register [post]
-func (h FintechHandler) RegisterHandler(c *gin.Context) {
-	var req domain.RegisterRequest
+func (h *FintechHandler) RegisterHandler(c *gin.Context) {
+	var req RegisterRequest
 	// username and password matching regex rule
 	usernameRegex := "^[a-zA-Z0-9_]{4,20}$"
 	passwordRegex := "^[a-zA-Z0-9!@#%^&*()_+=-]{8,20}$"
@@ -206,7 +206,7 @@ func (h FintechHandler) RegisterHandler(c *gin.Context) {
 // @Failure     403       {object} utils.Response
 // @Failure     500       {object} utils.Response
 // @Router      /user/{user_name} [get]
-func (h FintechHandler) GetUserHandler(c *gin.Context) {
+func (h *FintechHandler) GetUserHandler(c *gin.Context) {
 	getUserName := c.Param("username")
 	resp, err := h.fintechUc.GetUserUc(c, getUserName)
 	if err != nil {
@@ -232,7 +232,7 @@ func (h FintechHandler) GetUserHandler(c *gin.Context) {
 // @Failure     403       {object} utils.Response
 // @Failure     500       {object} utils.Response
 // @Router      /user/{user_name}/account [get]
-func (h FintechHandler) GetAccountHandler(c *gin.Context) {
+func (h *FintechHandler) GetAccountHandler(c *gin.Context) {
 	getUserName := c.Param("username")
 	resp, err := h.fintechUc.GetAccountUc(c, getUserName)
 	if err != nil {
@@ -259,9 +259,9 @@ func (h FintechHandler) GetAccountHandler(c *gin.Context) {
 // @Failure     403       {object} utils.Response
 // @Failure     500       {object} utils.Response
 // @Router      /user/{user_name}/transfer [post]
-func (h FintechHandler) TransferMoneyHandler(c *gin.Context) {
+func (h *FintechHandler) TransferMoneyHandler(c *gin.Context) {
 	getUserName := c.Param("username")
-	var req domain.TransferRequest
+	var req TransferRequest
 	err := c.ShouldBind(&req)
 	if err != nil {
 		c.Error(err) //nolint:errcheck

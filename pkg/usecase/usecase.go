@@ -1,42 +1,48 @@
 package usecase
 
 import (
+	"context"
 	"fintech-api/pkg/domain"
-	"github.com/gin-gonic/gin"
+	"fintech-api/pkg/repository"
+	"math/big"
 )
 
 type fintechUc struct {
-	fintechRepo domain.FintechRepository
+	fintechRepo repository.FintechRepository
 }
 
-func (u fintechUc) AddMoneyUc(c *gin.Context, to string, amount int) (domain.Account, error) {
+func (u fintechUc) AddMoneyUc(c context.Context, to string, amount int) (domain.Account, error) {
 	return u.fintechRepo.AddMoneyRepository(c, to, amount)
 }
 
-func (u fintechUc) RemoveMoneyUc(c *gin.Context, from string, amount int) (domain.Account, error) {
+func (u fintechUc) RemoveMoneyUc(c context.Context, from string, amount int) (domain.Account, error) {
 	return u.fintechRepo.RemoveMoneyRepository(c, from, amount)
 }
 
-func (u fintechUc) LoginUc(c *gin.Context, userName, password string) error {
+func (u fintechUc) LoginUc(c context.Context, userName, password string) error {
 	return u.fintechRepo.LoginRepository(c, userName, password)
 }
 
-func (u fintechUc) RegisterUserUc(c *gin.Context, userName, email, password string) (string, error) {
+func (u fintechUc) RegisterUserUc(c context.Context, userName, email, password string) (string, error) {
 	return u.fintechRepo.RegisterUserRepository(c, userName, email, password)
 }
 
-func (u fintechUc) GetUserUc(c *gin.Context, userName string) (domain.UserType, error) {
+func (u fintechUc) GetUserUc(c context.Context, userName string) (domain.User, error) {
 	return u.fintechRepo.GetUserRepository(c, userName)
 }
 
-func (u fintechUc) GetAccountUc(c *gin.Context, userName string) (domain.Account, error) {
+func (u fintechUc) GetAccountUc(c context.Context, userName string) (domain.Account, error) {
 	return u.fintechRepo.GetAccountRepository(c, userName)
 }
 
-func (u fintechUc) TransferMoneyUc(c *gin.Context, from, to string, amount int) (domain.Account, error) {
-	return u.fintechRepo.TransferMoneyRepository(c, from, to, amount)
+func (u fintechUc) TransferMoneyUc(c context.Context, from, to string, amount int) (domain.Account, error) {
+	var Balance big.Int
+	return domain.Account{
+		//UserName: "",
+		Balance: Balance,
+	}, nil
 }
 
-func NewFintechUseCase(repo domain.FintechRepository) domain.FintechUseCase {
+func NewFintechUseCase(repo repository.FintechRepository) domain.FintechUseCase {
 	return &fintechUc{fintechRepo: repo}
 }

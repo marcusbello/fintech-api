@@ -1,11 +1,11 @@
 package couchbase
 
 import (
+	"context"
 	"fintech-api/config"
 	"fintech-api/pkg/domain"
 	"fintech-api/pkg/repository"
 	"github.com/couchbase/gocb/v2"
-	"github.com/gin-gonic/gin"
 	"log"
 )
 
@@ -13,37 +13,37 @@ type CouchbaseRepo struct {
 	client *gocb.Cluster
 }
 
-func (cb *CouchbaseRepo) LoginRepository(c *gin.Context, userName, password string) error {
+func (cb *CouchbaseRepo) LoginRepository(c context.Context, userName, password string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) RegisterUserRepository(c *gin.Context, userName, email, password string) (string, error) {
+func (cb *CouchbaseRepo) RegisterUserRepository(c context.Context, userName, email, password string) (string, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) GetUserRepository(c *gin.Context, userName string) (domain.UserType, error) {
+func (cb *CouchbaseRepo) GetUserRepository(c context.Context, userName string) (domain.User, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) GetAccountRepository(c *gin.Context, userName string) (domain.Account, error) {
+func (cb *CouchbaseRepo) GetAccountRepository(c context.Context, userName string) (domain.Account, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) AddMoneyRepository(c *gin.Context, to string, amount int) (domain.Account, error) {
+func (cb *CouchbaseRepo) AddMoneyRepository(c context.Context, to string, amount int) (domain.Account, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) RemoveMoneyRepository(c *gin.Context, from string, amount int) (domain.Account, error) {
+func (cb *CouchbaseRepo) RemoveMoneyRepository(c context.Context, from string, amount int) (domain.Account, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (cb *CouchbaseRepo) AddToTransaction(c *gin.Context, from, to string, amount int) error {
+func (cb *CouchbaseRepo) AddToTransaction(c context.Context, from, to string, amount int) error {
 	//TODO implement me
 	panic("implement me")
 }
